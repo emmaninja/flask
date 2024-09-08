@@ -41,9 +41,11 @@ def calcular():
         resultado = calcular_expressao_complexa(expressao)
         return jsonify({'resultado': resultado})
     except ValueError as ve:
-        return jsonify({'erro': str(ve)}), 400  # Expressão inválida
+        return jsonify({'erro': str(ve)}), 400
     except Exception as e:
-        return jsonify({'erro': 'Erro ao processar a expressão'}), 500  # Erro genérico
+        return jsonify({'erro': 'Erro ao processar a expressão'}), 500
 
 if __name__ == '__main__':
-    app.run(debug=os.getenv("FLASK_DEBUG", "false").lower() == "true", port=os.getenv("PORT", default=5000))
+    port = int(os.getenv("PORT", 5000))  # Use a porta definida no ambiente, ou 5000 como padrão
+    app.run(debug=os.getenv("FLASK_DEBUG", "false").lower() == "true", host='0.0.0.0', port=port)
+
