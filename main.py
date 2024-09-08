@@ -1,12 +1,22 @@
 from flask import Flask, request, jsonify
 import math
 import os
+import re
 
 app = Flask(__name__)
+
+# Função para validar expressões matemáticas
+def validar_expressao(expressao):
+    # Permitir apenas números, operadores e funções matemáticas básicas
+    padrao = r'^[0-9+\-*/()., ]+$'
+    if not re.match(padrao, expressao):
+        raise ValueError('Expressão inválida: contém caracteres não permitidos')
+    return True
 
 # Função para cálculos matemáticos complexos
 def calcular_expressao_complexa(expressao):
     try:
+        validar_expressao(expressao)  # Validação extra da expressão
         # Ambiente seguro para avaliar a expressão
         safe_dict = {k: getattr(math, k) for k in dir(math) if not k.startswith("__")}
         safe_dict.update({'abs': abs, 'round': round})
@@ -27,8 +37,13 @@ def calcular():
     if not expressao:
         return jsonify({'erro': 'Nenhuma expressão fornecida'}), 400
 
-    resultado = calcular_expressao_complexa(expressao)
-    return jsonify({'resultado': resultado})
+    try:
+        resultado = calcular_expressao_complexa(expressao)
+        return jsonify({'resultado': resultado})
+    except ValueError as ve:
+        return jsonify({'erro': str(ve)}), 400  # Expressão inválida
+    except Exception as e:
+        return jsonify({'erro': 'Erro ao processar a expressão'}), 500  # Erro genérico
 
 if __name__ == '__main__':
-    app.run(debug=True, port=os.getenv("PORT", default=5000))
+    app.run(debug=os.getenv("FLASK_DEBUG", "false").lower() == "true", port=os.getenv("PORT", default=5000))
