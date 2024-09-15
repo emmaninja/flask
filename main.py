@@ -32,17 +32,24 @@ def index():
 @app.route('/calcular', methods=['POST'])
 def calcular():
     dados = request.json
+    print(f"Dados recebidos: {dados}")  # Log da requisição recebida
     expressao = dados.get('expressao', '')
 
     if not expressao:
         return jsonify({'erro': 'Nenhuma expressão fornecida'}), 400
 
     try:
+        # Adicionando log para verificar a expressão recebida
+        print(f"Expressão para cálculo: {expressao}")
+        
         resultado = calcular_expressao_complexa(expressao)
+        print(f"Resultado do cálculo: {resultado}")  # Log do resultado
         return jsonify({'resultado': resultado})
     except ValueError as ve:
+        print(f"Erro de valor: {ve}")  # Log do erro de valor
         return jsonify({'erro': str(ve)}), 400
     except Exception as e:
+        print(f"Erro ao processar a expressão: {e}")  # Log de qualquer outro erro
         return jsonify({'erro': 'Erro ao processar a expressão'}), 500
 
 if __name__ == '__main__':
