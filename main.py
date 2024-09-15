@@ -46,6 +46,6 @@ def calcular():
         return jsonify({'erro': 'Erro ao processar a expressão'}), 500
 
 if __name__ == '__main__':
-    port = int(os.getenv("PORT", 5000))  # Use a porta definida no ambiente, ou 5000 como padrão
+    port = int(os.getenv("PORT", 8080))  # Use a porta definida no ambiente, ou 8080 como padrão
     app.run(debug=os.getenv("FLASK_DEBUG", "false").lower() == "true", host='0.0.0.0', port=port)
 
