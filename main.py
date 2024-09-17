@@ -10,7 +10,7 @@ def validar_expressao(expressao):
     # Permitir apenas números, operadores e funções matemáticas básicas
     padrao = r'^[0-9+\-*/()., ]+$'
     if not re.match(padrao, expressao):
-        raise ValueError('Expressão inválida: contém caracteres não permitidos')
+        raise ValueError('Error: not a mathematical expression')
     return True
 
 # Função para cálculos matemáticos complexos
