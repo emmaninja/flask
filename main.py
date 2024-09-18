@@ -8,8 +8,9 @@ app = Flask(__name__)
 def calcular_expressao(expressao, latex=False):
     try:
         if latex:
-            # Remover escapes adicionais da expressão
-            expressao = expressao.replace('\\\\', '\\')
+            # Normalizar as barras invertidas (remover escapes adicionais)
+            expressao = expressao.encode('utf-8').decode('unicode_escape')
+            
             # Continuar com o processamento LaTeX
             if r'\lim' in expressao:
                 # Extrair a parte da expressão com o limite
