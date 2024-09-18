@@ -2,19 +2,23 @@ from flask import Flask, request, jsonify
 import sympy as sp
 import latex2sympy2 as latex2sympy
 import os
+import logging
 
 app = Flask(__name__)
+
+# Configurar o logger
+logging.basicConfig(level=logging.INFO)
 
 def calcular_expressao(expressao, latex=False):
     try:
         if latex:
-            print(f"Expressão original recebida: {expressao}")  # Print antes da substituição
+            logging.info(f"Expressão original recebida: {expressao}")  # Log antes da substituição
             # Remover escapes adicionais da expressão
             expressao = expressao.replace('\\\\', '\\')  # Substitui '\\' por '\'
-            print(f"Expressão após substituir barras invertidas: {expressao}")  # Print após a substituição
+            logging.info(f"Expressão após substituir barras invertidas: {expressao}")  # Log após a substituição
             # Processar LaTeX usando latex2sympy
             sympy_expr = latex2sympy.latex2sympy(expressao)
-            print(f"Expressão convertida para SymPy: {sympy_expr}")  # Print antes da avaliação
+            logging.info(f"Expressão convertida para SymPy: {sympy_expr}")  # Log antes da avaliação
         else:
             sympy_expr = sp.sympify(expressao)
 
@@ -28,6 +32,7 @@ def calcular_expressao(expressao, latex=False):
 
         return resultado
     except Exception as e:
+        logging.error(f"Erro ao processar a expressão: {str(e)}")  # Log em caso de erro
         return f"Erro ao processar a expressão: {str(e)}"
 
 @app.route('/')
@@ -48,9 +53,9 @@ def calcular():
         resultado = calcular_expressao(expressao, latex=latex)
         return jsonify({'resultado': str(resultado)})
     except Exception as e:
+        logging.error(f"Erro ao processar a expressão: {str(e)}")  # Log em caso de erro
         return jsonify({'erro': f'Erro ao processar a expressão: {str(e)}'}), 500
 
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 8080))
     app.run(debug=os.getenv("FLASK_DEBUG", "false").lower() == "true", host='0.0.0.0', port=port)
-
