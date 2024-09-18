@@ -8,10 +8,13 @@ app = Flask(__name__)
 def calcular_expressao(expressao, latex=False):
     try:
         if latex:
+            print(f"Expressão original recebida: {expressao}")  # Print antes da substituição
             # Remover escapes adicionais da expressão
             expressao = expressao.replace('\\\\', '\\')  # Substitui '\\' por '\'
+            print(f"Expressão após substituir barras invertidas: {expressao}")  # Print após a substituição
             # Processar LaTeX usando latex2sympy
             sympy_expr = latex2sympy.latex2sympy(expressao)
+            print(f"Expressão convertida para SymPy: {sympy_expr}")  # Print antes da avaliação
         else:
             sympy_expr = sp.sympify(expressao)
 
@@ -50,3 +53,4 @@ def calcular():
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 8080))
     app.run(debug=os.getenv("FLASK_DEBUG", "false").lower() == "true", host='0.0.0.0', port=port)
+
