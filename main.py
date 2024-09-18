@@ -15,9 +15,19 @@ def calcular_expressao(expressao, latex=False):
         logging.info(f"Expressão original recebida: {expressao}")
 
         if latex:
-            # Corrigir a duplicação de barras invertidas
-            expressao = expressao.encode('utf-8').decode('unicode_escape')
-            logging.info(f"Expressão após remover duplicação de barras invertidas: {expressao}")
+            # Tentar remover duplicações de barras invertidas e caracteres indesejados
+            expressao = expressao.replace('\\\\', '\\')
+            logging.info(f"Expressão após limpeza inicial: {expressao}")
+
+            # Remover caracteres de início e fim indesejados (como $ ou \(...\))
+            expressao = expressao.strip()
+            if expressao.startswith('$$') and expressao.endswith('$$'):
+                expressao = expressao[2:-2]
+            elif expressao.startswith('$') and expressao.endswith('$'):
+                expressao = expressao[1:-1]
+            elif expressao.startswith('\\(') and expressao.endswith('\\)'):
+                expressao = expressao[2:-2]
+            logging.info(f"Expressão após remover delimitadores LaTeX: {expressao}")
 
             # Processar LaTeX usando latex2sympy
             sympy_expr = latex2sympy.latex2sympy(expressao)
@@ -65,3 +75,4 @@ def calcular():
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 8080))
     app.run(debug=os.getenv("FLASK_DEBUG", "false").lower() == "true", host='0.0.0.0', port=port)
+
