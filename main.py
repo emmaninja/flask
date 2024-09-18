@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 import sympy as sp
-from latex2sympy import process_latex  # Importando o processador LaTeX
+from pylatexenc.latex2text import LatexNodes2Text  # Importando para converter LaTeX em texto
 import os
 
 app = Flask(__name__)
@@ -8,9 +8,10 @@ app = Flask(__name__)
 def calcular_expressao(expressao, latex=False):
     try:
         if latex:
-            # Converter expressão LaTeX para SymPy usando latex2sympy
+            # Converter expressão LaTeX para texto usando pylatexenc
             try:
-                sympy_expr = process_latex(expressao)
+                text_expr = LatexNodes2Text().latex_to_text(expressao)
+                sympy_expr = sp.sympify(text_expr)
             except Exception as e:
                 return f"Erro ao converter LaTeX para SymPy: {str(e)}"
         else:
@@ -53,4 +54,3 @@ def calcular():
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 8080))
     app.run(debug=os.getenv("FLASK_DEBUG", "false").lower() == "true", host='0.0.0.0', port=port)
-
