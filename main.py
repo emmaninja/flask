@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 import sympy as sp
-from sympy.parsing.latex import parse_latex
+from latex2sympy import process_latex  # Importando o processador LaTeX
 import os
 
 app = Flask(__name__)
@@ -8,33 +8,15 @@ app = Flask(__name__)
 def calcular_expressao(expressao, latex=False):
     try:
         if latex:
-            # Remover duplicações de barras invertidas
-            expressao = expressao.encode('utf-8').decode('unicode_escape')
-
-            # Processamento da expressão LaTeX
-            if r'\lim' in expressao:
-                # Extrair a parte da expressão com o limite
-                expressao = expressao.replace(r'\lim', 'limit')  # simplificar para a detecção do limite
-                if '_{' in expressao and '}' in expressao:
-                    # Extrair o valor de x e a direção (se houver)
-                    partes = expressao.split('}')
-                    limite_de = partes[0].split('_')[1].replace('{', '').replace('x \\to ', '')
-                    direcao = '+' if '^+' in limite_de else '-' if '^-' in limite_de else ''
-                    valor_limite = limite_de.replace('^+', '').replace('^-', '')
-                    
-                    # Extrair a função que será usada no limite
-                    funcao = partes[1]
-                    
-                    # Criar expressão SymPy para o limite
-                    sympy_expr = sp.limit(parse_latex(funcao), sp.Symbol('x'), sp.sympify(valor_limite), dir=direcao)
-                else:
-                    return "Expressão de limite inválida."
-            else:
-                # Tentar fazer o parsing da expressão como LaTeX normalmente
-                sympy_expr = parse_latex(expressao)
+            # Converter expressão LaTeX para SymPy usando latex2sympy
+            try:
+                sympy_expr = process_latex(expressao)
+            except Exception as e:
+                return f"Erro ao converter LaTeX para SymPy: {str(e)}"
         else:
+            # Converter a expressão diretamente para SymPy se não estiver em LaTeX
             sympy_expr = sp.sympify(expressao)
-        
+
         # Avaliar o tipo de operação a ser realizada
         if isinstance(sympy_expr, sp.Basic):
             # Tentar simplificar a expressão
@@ -42,7 +24,7 @@ def calcular_expressao(expressao, latex=False):
         else:
             # Avaliação numérica
             resultado = sympy_expr.evalf()
-        
+
         # Retornar o resultado
         return resultado
     except Exception as e:
@@ -71,3 +53,4 @@ def calcular():
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 8080))
     app.run(debug=os.getenv("FLASK_DEBUG", "false").lower() == "true", host='0.0.0.0', port=port)
+

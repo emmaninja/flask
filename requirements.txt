@@ -12,5 +12,6 @@ sympy==1.12  # Uma versão anterior para evitar possíveis bugs em versões mais
 Werkzeug==3.0.0
 gunicorn==20.1.0
 antlr4-python3-runtime==4.11.1
+latex2sympy==1.0.3
 
 
