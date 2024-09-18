@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 import sympy as sp
-from sympy.parsing.latex import parse_latex  # Importando o parseador LaTeX do SymPy
-import os  # Importação do módulo os
+from sympy.parsing.latex import parse_latex
+import os
 
 app = Flask(__name__)
 
@@ -14,17 +14,15 @@ def calcular_expressao_complexa(expressao, latex=False):
         else:
             sympy_expr = sp.sympify(expressao)  # Converte a expressão para uma forma simbólica
         
-        # Se for um limite, calcular o limite
+        # Cálculo específico, como limites
         if sympy_expr.has(sp.Limit):
-            limite = sympy_expr.limit()
-            print(f"Resultado do limite: {limite}")
-            return limite
-
-        # Simplificar ou avaliar a expressão
-        resultado = sp.simplify(sympy_expr)
-        print(f"Resultado simplificado: {resultado}")
+            resultado = sympy_expr.doit()
+        else:
+            # Tentativa de simplificar a expressão com SymPy
+            resultado = sp.simplify(sympy_expr)
+        
+        print(f"Resultado: {resultado}")
         return resultado
-
     except Exception as e:
         print(f"Erro ao processar a expressão: {e}")
         return str(e)
@@ -36,27 +34,24 @@ def index():
 @app.route('/calcular', methods=['POST'])
 def calcular():
     dados = request.json
-    print(f"Dados recebidos: {dados}")  # Log da requisição recebida
+    print(f"Dados recebidos: {dados}")
     expressao = dados.get('expressao', '')
-    latex = dados.get('latex', False)  # Verifica se a expressão está em LaTeX
+    latex = dados.get('latex', False)
 
     if not expressao:
         return jsonify({'erro': 'Nenhuma expressão fornecida'}), 400
 
     try:
-        # Adicionando log para verificar a expressão recebida
-        print(f"Expressão para cálculo: {expressao}")
-        
         resultado = calcular_expressao_complexa(expressao, latex=latex)
-        print(f"Resultado do cálculo: {resultado}")  # Log do resultado
-        return jsonify({'resultado': str(resultado)})  # Converter resultado para string
+        print(f"Resultado do cálculo: {resultado}")
+        return jsonify({'resultado': str(resultado)})
     except ValueError as ve:
-        print(f"Erro de valor: {ve}")  # Log do erro de valor
+        print(f"Erro de valor: {ve}")
         return jsonify({'erro': str(ve)}), 400
     except Exception as e:
-        print(f"Erro ao processar a expressão: {e}")  # Log de qualquer outro erro
+        print(f"Erro ao processar a expressão: {e}")
         return jsonify({'erro': 'Erro ao processar a expressão'}), 500
 
 if __name__ == '__main__':
-    port = int(os.getenv("PORT", 8080))  # Use a porta definida no ambiente, ou 8080 como padrão
+    port = int(os.getenv("PORT", 8080))
     app.run(debug=os.getenv("FLASK_DEBUG", "false").lower() == "true", host='0.0.0.0', port=port)
