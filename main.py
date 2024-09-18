@@ -17,17 +17,21 @@ def latex_to_sympy(latex_expr):
 def calcular_expressao(expressao, latex=False):
     try:
         if latex:
-            # Converter a expressão LaTeX para SymPy
-            sympy_expr = latex_to_sympy(expressao)
-            if isinstance(sympy_expr, str) and "Erro ao converter" in sympy_expr:
-                return sympy_expr
+            # Remover escapes adicionais da expressão
+            expressao = expressao.encode().decode('unicode_escape')
+            # Continuar com o processamento LaTeX
+            sympy_expr = latex2sympy.latex2sympy(expressao)
+        else:
+            sympy_expr = sp.sympify(expressao)
+
+        # Avaliar o tipo de operação a ser realizada
+        if isinstance(sympy_expr, sp.Basic):
+            # Tentar simplificar a expressão
             resultado = sp.simplify(sympy_expr)
         else:
-            # Avaliar a expressão diretamente usando SymPy
-            sympy_expr = sp.sympify(expressao)
-            resultado = sp.simplify(sympy_expr)
+            # Avaliação numérica
+            resultado = sympy_expr.evalf()
 
-        # Retornar o resultado
         return resultado
     except Exception as e:
         return f"Erro ao processar a expressão: {str(e)}"
