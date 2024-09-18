@@ -3,32 +3,38 @@ import sympy as sp
 import latex2sympy2 as latex2sympy
 import os
 import logging
+import re
 
 app = Flask(__name__)
 
 # Configurar o logger
 logging.basicConfig(level=logging.INFO)
 
+def limpar_expressao(expressao):
+    """
+    Função para limpar a expressão LaTeX, removendo delimitadores extras
+    e tratando barras invertidas.
+    """
+    # Remover delimitadores LaTeX
+    expressao = re.sub(r'^\$+|\$+$|^\\\(|\\\)$|^\\\[|\\\]$', '', expressao)
+    
+    # Substituir '\\' por '\'
+    expressao = expressao.replace('\\\\', '\\')
+
+    return expressao
+
 def calcular_expressao(expressao, latex=False):
     try:
         logging.info(f"Expressão original recebida: {expressao}")  # Log da expressão original
 
-        # Verificar se a expressão é em LaTeX
         if latex:
-            # Remover escapes adicionais da expressão
-            expressao = expressao.replace('\\\\', '\\')  # Substitui '\\' por '\'
-            logging.info(f"Expressão após substituir barras invertidas: {expressao}")  # Log após a substituição
-            
-            # Tentar decodificar possíveis escapes
-            try:
-                expressao = expressao.encode().decode('unicode_escape')
-                logging.info(f"Expressão após decodificar unicode escapes: {expressao}")
-            except Exception as e:
-                logging.warning(f"Erro ao decodificar unicode escapes: {str(e)}")
+            # Limpar a expressão
+            expressao_limpa = limpar_expressao(expressao)
+            logging.info(f"Expressão após limpeza: {expressao_limpa}")  # Log após a limpeza
 
             # Processar LaTeX usando latex2sympy
             try:
-                sympy_expr = latex2sympy.latex2sympy(expressao)
+                sympy_expr = latex2sympy.latex2sympy(expressao_limpa)
                 logging.info(f"Expressão convertida para SymPy: {sympy_expr}")  # Log antes da avaliação
             except Exception as e:
                 logging.error(f"Erro ao converter LaTeX para SymPy: {str(e)}")
