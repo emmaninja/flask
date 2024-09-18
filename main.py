@@ -3,6 +3,7 @@ import sympy as sp
 from sympy.parsing.latex import parse_latex  # Importando o parseador LaTeX do SymPy
 import scipy.integrate as spi
 import numpy as np
+import os  # Importação do módulo os
 
 app = Flask(__name__)
 
