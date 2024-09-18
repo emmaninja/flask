@@ -1,29 +1,31 @@
 from flask import Flask, request, jsonify
 import sympy as sp
-from latex2sympy2 import latex2sympy  # Importando o latex2sympy2 para converter LaTeX
+from latex2sympy2 import latex2sympy
 import os
 
 app = Flask(__name__)
 
+# Função para converter LaTeX para SymPy usando latex2sympy2
+def latex_to_sympy(latex_expr):
+    try:
+        sympy_expr = latex2sympy(latex_expr)
+        return sympy_expr
+    except Exception as e:
+        return f"Erro ao converter LaTeX para SymPy: {str(e)}"
+
+# Função para calcular a expressão
 def calcular_expressao(expressao, latex=False):
     try:
         if latex:
-            # Convertendo expressão LaTeX para SymPy usando latex2sympy2
-            try:
-                sympy_expr = latex2sympy(expressao)
-            except Exception as e:
-                return f"Erro ao converter LaTeX para SymPy: {str(e)}"
-        else:
-            # Converter a expressão diretamente para SymPy se não estiver em LaTeX
-            sympy_expr = sp.sympify(expressao)
-
-        # Avaliar o tipo de operação a ser realizada
-        if isinstance(sympy_expr, sp.Basic):
-            # Tentar simplificar a expressão
+            # Converter a expressão LaTeX para SymPy
+            sympy_expr = latex_to_sympy(expressao)
+            if isinstance(sympy_expr, str) and "Erro ao converter" in sympy_expr:
+                return sympy_expr
             resultado = sp.simplify(sympy_expr)
         else:
-            # Avaliação numérica
-            resultado = sympy_expr.evalf()
+            # Avaliar a expressão diretamente usando SymPy
+            sympy_expr = sp.sympify(expressao)
+            resultado = sp.simplify(sympy_expr)
 
         # Retornar o resultado
         return resultado
