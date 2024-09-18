@@ -8,8 +8,6 @@ app = Flask(__name__)
 def calcular_expressao(expressao, latex=False):
     try:
         if latex:
-            # Remover escapes adicionais da expressão
-            expressao = expressao.encode().decode('unicode_escape')
             # Processar LaTeX usando latex2sympy
             sympy_expr = latex2sympy.latex2sympy(expressao)
         else:
