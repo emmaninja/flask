@@ -1,13 +1,11 @@
 from flask import Flask, request, jsonify
 import sympy as sp
 from sympy.parsing.latex import parse_latex  # Importando o parseador LaTeX do SymPy
-import scipy.integrate as spi
-import numpy as np
 import os  # Importação do módulo os
 
 app = Flask(__name__)
 
-# Função para cálculos matemáticos complexos usando SymPy e SciPy
+# Função para cálculos matemáticos complexos usando SymPy
 def calcular_expressao_complexa(expressao, latex=False):
     try:
         # Se a expressão estiver em LaTeX, usar o parseador de LaTeX do SymPy
@@ -15,41 +13,20 @@ def calcular_expressao_complexa(expressao, latex=False):
             sympy_expr = parse_latex(expressao)
         else:
             sympy_expr = sp.sympify(expressao)  # Converte a expressão para uma forma simbólica
-
-        # Tratamento de limites usando SymPy
-        if isinstance(sympy_expr, sp.Limit):
-            limite = sp.limit(sympy_expr.args[0], sympy_expr.args[1], sympy_expr.args[2])
+        
+        # Se for um limite, calcular o limite
+        if sympy_expr.has(sp.Limit):
+            limite = sympy_expr.limit()
             print(f"Resultado do limite: {limite}")
             return limite
 
-        # Tentativa de simplificar a expressão com SymPy
-        try:
-            simplificado = sp.simplify(sympy_expr)  # Tenta simplificar a expressão
-            print(f"Resultado simplificado: {simplificado}")
-            return simplificado
-        except Exception as e_sympy:
-            print(f"Erro ao simplificar com SymPy: {e_sympy}")
-
-        # Tentar usar SciPy para integrais definidas, etc.
-        try:
-            # Exemplo: Integrar usando scipy se a expressão for uma integral definida
-            if 'integrate' in expressao:
-                # Substituir 'integrate' por uma função lambda para integração numérica
-                # Exemplo: "integrate(x**2, (x, 0, 1))" -> integral de x^2 de 0 a 1
-                expr_parts = expressao.replace('integrate', '').strip('()').split(',')
-                func_to_integrate = sp.lambdify(sp.Symbol('x'), sp.sympify(expr_parts[0]), modules=['numpy'])
-                a, b = float(expr_parts[1].split(' ')[1]), float(expr_parts[2].split(' ')[1])
-                resultado = spi.quad(func_to_integrate, a, b)[0]  # Integrar de a a b
-                print(f"Resultado da integral numérica: {resultado}")
-                return resultado
-        except Exception as e_scipy:
-            print(f"Erro ao calcular com SciPy: {e_scipy}")
-
-        # Se não for possível simplificar ou avaliar, lançar um erro
-        raise ValueError('Expressão não pôde ser avaliada ou simplificada.')
+        # Simplificar ou avaliar a expressão
+        resultado = sp.simplify(sympy_expr)
+        print(f"Resultado simplificado: {resultado}")
+        return resultado
 
     except Exception as e:
-        print(f"Erro geral ao processar a expressão: {e}")
+        print(f"Erro ao processar a expressão: {e}")
         return str(e)
 
 @app.route('/')
