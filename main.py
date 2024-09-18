@@ -3,6 +3,7 @@ import sympy as sp
 import latex2sympy2 as latex2sympy
 import os
 import logging
+import json
 
 app = Flask(__name__)
 
@@ -14,7 +15,11 @@ def calcular_expressao(expressao, latex=False):
         if latex:
             logging.info(f"Expressão original recebida: {expressao}")  # Log antes do processamento LaTeX
             try:
-                # Processar a expressão como LaTeX diretamente
+                # Normalizar a expressão JSON
+                expressao = json.loads(f'"{expressao}"')
+                logging.info(f"Expressão normalizada: {expressao}")
+                
+                # Processar LaTeX usando latex2sympy
                 sympy_expr = latex2sympy.latex2sympy(expressao)
                 logging.info(f"Expressão convertida para SymPy: {sympy_expr}")  # Log antes da avaliação
             except Exception as e:
