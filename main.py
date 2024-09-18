@@ -1,26 +1,17 @@
 from flask import Flask, request, jsonify
 import sympy as sp
-from latex2sympy2 import latex2sympy
+from latex2sympy2 import process_latex
 import os
 
 app = Flask(__name__)
 
-# Função para converter LaTeX para SymPy usando latex2sympy2
-def latex_to_sympy(latex_expr):
-    try:
-        sympy_expr = latex2sympy(latex_expr)
-        return sympy_expr
-    except Exception as e:
-        return f"Erro ao converter LaTeX para SymPy: {str(e)}"
-
-# Função para calcular a expressão
 def calcular_expressao(expressao, latex=False):
     try:
         if latex:
             # Remover escapes adicionais da expressão
             expressao = expressao.encode().decode('unicode_escape')
             # Continuar com o processamento LaTeX
-            sympy_expr = latex2sympy.latex2sympy(expressao)
+            sympy_expr = process_latex(expressao)
         else:
             sympy_expr = sp.sympify(expressao)
 
