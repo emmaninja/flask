@@ -17,9 +17,6 @@ def limpar_expressao(expressao):
     """
     # Remover delimitadores LaTeX
     expressao = re.sub(r'^\$+|\$+$|^\\\(|\\\)$|^\\\[|\\\]$', '', expressao)
-    
-    # Substituir '\\' por '\'
-    expressao = expressao.replace('\\\\', '\\')
 
     return expressao
 
@@ -32,9 +29,9 @@ def calcular_expressao(expressao, latex=False):
             expressao_limpa = limpar_expressao(expressao)
             logging.info(f"Expressão após limpeza: {expressao_limpa}")  # Log após a limpeza
 
-            # Processar LaTeX usando latex2sympy
+            # Use a expressão como uma string "raw" para evitar problemas de barras invertidas
             try:
-                sympy_expr = latex2sympy.latex2sympy(expressao_limpa)
+                sympy_expr = latex2sympy.latex2sympy(rf"{expressao_limpa}")
                 logging.info(f"Expressão convertida para SymPy: {sympy_expr}")  # Log antes da avaliação
             except Exception as e:
                 logging.error(f"Erro ao converter LaTeX para SymPy: {str(e)}")
