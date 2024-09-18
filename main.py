@@ -1,8 +1,6 @@
 from flask import Flask, request, jsonify
 import sympy as sp
-import latex2sympy2 as latex2sympy  # Ajuste o nome de importação conforme necessário
-print(latex2sympy2.__version__)
-
+import latex2sympy2 as latex2sympy  # Ajustando a importação para latex2sympy
 import os
 
 app = Flask(__name__)
@@ -12,7 +10,7 @@ def calcular_expressao(expressao, latex=False):
         if latex:
             # Remover escapes adicionais da expressão
             expressao = expressao.encode().decode('unicode_escape')
-            # Continuar com o processamento LaTeX
+            # Processar LaTeX usando latex2sympy
             sympy_expr = latex2sympy.latex2sympy(expressao)
         else:
             sympy_expr = sp.sympify(expressao)
