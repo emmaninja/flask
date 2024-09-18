@@ -11,11 +11,12 @@ logging.basicConfig(level=logging.INFO)
 
 def calcular_expressao(expressao, latex=False):
     try:
+        # Substituir '\\' por '\'
+        expressao = expressao.replace('\\\\', '\\')  # Substitui '\\' por '\'
+        logging.info(f"Expressão após substituir barras invertidas: {expressao}")  # Log após a substituição
+
         if latex:
-            logging.info(f"Expressão original recebida: {expressao}")  # Log antes da substituição
-            # Remover escapes adicionais da expressão
-            expressao = expressao.replace('\\\\', '\\')  # Substitui '\\' por '\'
-            logging.info(f"Expressão após substituir barras invertidas: {expressao}")  # Log após a substituição
+            logging.info(f"Expressão original recebida: {expressao}")  # Log antes do processamento LaTeX
             # Processar LaTeX usando latex2sympy
             sympy_expr = latex2sympy.latex2sympy(expressao)
             logging.info(f"Expressão convertida para SymPy: {sympy_expr}")  # Log antes da avaliação
