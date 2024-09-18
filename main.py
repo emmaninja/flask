@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 import sympy as sp
-import latex2sympy2 as latex2sympy
+from sympy.parsing.latex import parse_latex
 import os
 import logging
 
@@ -15,11 +15,7 @@ def calcular_expressao(expressao, latex=False):
         logging.info(f"Expressão original recebida: {expressao}")
 
         if latex:
-            # Tentar remover duplicações de barras invertidas e caracteres indesejados
-            expressao = expressao.replace('\\\\', '\\')
-            logging.info(f"Expressão após limpeza inicial: {expressao}")
-
-            # Remover caracteres de início e fim indesejados (como $ ou \(...\))
+            # Remover delimitadores LaTeX se existirem
             expressao = expressao.strip()
             if expressao.startswith('$$') and expressao.endswith('$$'):
                 expressao = expressao[2:-2]
@@ -27,10 +23,12 @@ def calcular_expressao(expressao, latex=False):
                 expressao = expressao[1:-1]
             elif expressao.startswith('\\(') and expressao.endswith('\\)'):
                 expressao = expressao[2:-2]
-            logging.info(f"Expressão após remover delimitadores LaTeX: {expressao}")
 
-            # Processar LaTeX usando latex2sympy
-            sympy_expr = latex2sympy.latex2sympy(expressao)
+            # Log após limpeza
+            logging.info(f"Expressão após limpeza: {expressao}")
+
+            # Usar parse_latex do sympy para interpretar a expressão
+            sympy_expr = parse_latex(expressao)
             logging.info(f"Expressão convertida para SymPy: {sympy_expr}")
         else:
             sympy_expr = sp.sympify(expressao)
@@ -75,4 +73,3 @@ def calcular():
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 8080))
     app.run(debug=os.getenv("FLASK_DEBUG", "false").lower() == "true", host='0.0.0.0', port=port)
-
