@@ -3,7 +3,6 @@ import sympy as sp
 import latex2sympy2 as latex2sympy
 import os
 import logging
-import json
 
 app = Flask(__name__)
 
@@ -12,19 +11,15 @@ logging.basicConfig(level=logging.INFO)
 
 def calcular_expressao(expressao, latex=False):
     try:
+        # Substituir '\\' por '\'
+        expressao = expressao.replace('\\\\', '\\')  # Substitui '\\' por '\'
+        logging.info(f"Expressão após substituir barras invertidas: {expressao}")  # Log após a substituição
+
         if latex:
             logging.info(f"Expressão original recebida: {expressao}")  # Log antes do processamento LaTeX
-            try:
-                # Usar json.loads para interpretar a string corretamente
-                expressao = json.loads(f'"{expressao}"')
-                logging.info(f"Expressão normalizada: {expressao}")
-                
-                # Processar LaTeX usando latex2sympy
-                sympy_expr = latex2sympy.latex2sympy(expressao)
-                logging.info(f"Expressão convertida para SymPy: {sympy_expr}")  # Log antes da avaliação
-            except Exception as e:
-                logging.error(f"Erro ao converter LaTeX para SymPy: {str(e)}")
-                return f"Erro ao converter LaTeX para SymPy: {str(e)}"
+            # Processar LaTeX usando latex2sympy
+            sympy_expr = latex2sympy.latex2sympy(expressao)
+            logging.info(f"Expressão convertida para SymPy: {sympy_expr}")  # Log antes da avaliação
         else:
             sympy_expr = sp.sympify(expressao)
 
@@ -65,4 +60,3 @@ def calcular():
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 8080))
     app.run(debug=os.getenv("FLASK_DEBUG", "false").lower() == "true", host='0.0.0.0', port=port)
-
