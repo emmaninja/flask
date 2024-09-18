@@ -10,23 +10,37 @@ def calcular_expressao(expressao, latex=False):
     try:
         # Se a expressão estiver em LaTeX, converter para uma expressão SymPy
         if latex:
-            # Tentar fazer o parsing da expressão como LaTeX
-            sympy_expr = parse_latex(expressao)
+            # Pré-processar a expressão LaTeX para identificar limites
+            if r'\lim' in expressao:
+                # Extrair a parte da expressão com o limite
+                expressao = expressao.replace(r'\lim', 'limit') # simplificar para a detecção do limite
+                if '_{' in expressao and '}' in expressao:
+                    # Extrair o valor de x e a direção (se houver)
+                    partes = expressao.split('}')
+                    limite_de = partes[0].split('_')[1].replace('{', '').replace('x \\to ', '')
+                    direcao = '+' if '^+' in limite_de else '-' if '^-' in limite_de else ''
+                    valor_limite = limite_de.replace('^+', '').replace('^-', '')
+                    
+                    # Extrair a função que será usada no limite
+                    funcao = partes[1]
+                    
+                    # Criar expressão SymPy para o limite
+                    sympy_expr = sp.limit(parse_latex(funcao), sp.Symbol('x'), sp.sympify(valor_limite), dir=direcao)
+                else:
+                    return "Expressão de limite inválida."
+            else:
+                # Tentar fazer o parsing da expressão como LaTeX normalmente
+                sympy_expr = parse_latex(expressao)
         else:
             sympy_expr = sp.sympify(expressao)
         
         # Avaliar o tipo de operação a ser realizada
-        if isinstance(sympy_expr, sp.Limit):
-            # Calcular o limite se a expressão contiver um objeto de limite
-            resultado = sympy_expr.doit()
-        else:
+        if isinstance(sympy_expr, sp.Basic):
             # Tentar simplificar a expressão
             resultado = sp.simplify(sympy_expr)
-        
-        # Verificar se a expressão simplificada é um número
-        if resultado.is_number:
+        else:
             # Avaliação numérica
-            resultado = resultado.evalf()
+            resultado = sympy_expr.evalf()
         
         # Retornar o resultado
         return resultado
