@@ -11,15 +11,28 @@ logging.basicConfig(level=logging.INFO)
 
 def calcular_expressao(expressao, latex=False):
     try:
-        # Substituir '\\' por '\'
-        expressao = expressao.replace('\\\\', '\\')  # Substitui '\\' por '\'
-        logging.info(f"Expressão após substituir barras invertidas: {expressao}")  # Log após a substituição
+        logging.info(f"Expressão original recebida: {expressao}")  # Log da expressão original
 
+        # Verificar se a expressão é em LaTeX
         if latex:
-            logging.info(f"Expressão original recebida: {expressao}")  # Log antes do processamento LaTeX
+            # Remover escapes adicionais da expressão
+            expressao = expressao.replace('\\\\', '\\')  # Substitui '\\' por '\'
+            logging.info(f"Expressão após substituir barras invertidas: {expressao}")  # Log após a substituição
+            
+            # Tentar decodificar possíveis escapes
+            try:
+                expressao = expressao.encode().decode('unicode_escape')
+                logging.info(f"Expressão após decodificar unicode escapes: {expressao}")
+            except Exception as e:
+                logging.warning(f"Erro ao decodificar unicode escapes: {str(e)}")
+
             # Processar LaTeX usando latex2sympy
-            sympy_expr = latex2sympy.latex2sympy(expressao)
-            logging.info(f"Expressão convertida para SymPy: {sympy_expr}")  # Log antes da avaliação
+            try:
+                sympy_expr = latex2sympy.latex2sympy(expressao)
+                logging.info(f"Expressão convertida para SymPy: {sympy_expr}")  # Log antes da avaliação
+            except Exception as e:
+                logging.error(f"Erro ao converter LaTeX para SymPy: {str(e)}")
+                return f"Erro ao converter LaTeX para SymPy: {str(e)}"
         else:
             sympy_expr = sp.sympify(expressao)
 
