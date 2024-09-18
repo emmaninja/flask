@@ -15,7 +15,7 @@ def calcular_expressao(expressao, latex=False):
         if latex:
             logging.info(f"Expressão original recebida: {expressao}")  # Log antes do processamento LaTeX
             try:
-                # Normalizar a expressão JSON
+                # Usar json.loads para interpretar a string corretamente
                 expressao = json.loads(f'"{expressao}"')
                 logging.info(f"Expressão normalizada: {expressao}")
                 
@@ -65,3 +65,4 @@ def calcular():
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 8080))
     app.run(debug=os.getenv("FLASK_DEBUG", "false").lower() == "true", host='0.0.0.0', port=port)
+
