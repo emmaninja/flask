@@ -14,8 +14,8 @@ def limpar_expressao(expressao):
     Função para limpar a expressão LaTeX, removendo delimitadores extras
     e tratando barras invertidas.
     """
-    # Remover delimitadores LaTeX
     import re
+    # Remover delimitadores LaTeX
     expressao = re.sub(r'^\$+|\$+$|^\\\(|\\\)$|^\\\[|\\\]$', '', expressao)
     # Remover barras invertidas duplas
     expressao = expressao.replace('\\\\', '\\')
@@ -23,21 +23,22 @@ def limpar_expressao(expressao):
 
 def calcular_expressao(expressao, latex=False):
     try:
+        # Log da expressão original
+        logging.info(f"Expressão original recebida: {expressao}")
+        
+        # Limpar a expressão
+        expressao_limpa = limpar_expressao(expressao)
+        logging.info(f"Expressão após limpeza: {expressao_limpa}")
+        
         if latex:
-            logging.info(f"Expressão original recebida: {expressao}")  # Log da expressão original
-            
-            # Limpar a expressão
-            expressao_limpa = limpar_expressao(expressao)
-            logging.info(f"Expressão após limpeza: {expressao_limpa}")  # Log após a limpeza
-
             # Decodificar barras invertidas
-            expressao_decodificada = bytes(expressao_limpa, "utf-8").decode("unicode_escape")
-            logging.info(f"Expressão após decodificação: {expressao_decodificada}")  # Log após a decodificação
+            expressao_decodificada = expressao_limpa.encode().decode('unicode_escape')
+            logging.info(f"Expressão após decodificação: {expressao_decodificada}")
 
             # Processar LaTeX usando latex2sympy
             try:
                 sympy_expr = latex2sympy.latex2sympy(expressao_decodificada)
-                logging.info(f"Expressão convertida para SymPy: {sympy_expr}")  # Log antes da avaliação
+                logging.info(f"Expressão convertida para SymPy: {sympy_expr}")
             except Exception as e:
                 logging.error(f"Erro ao converter LaTeX para SymPy: {str(e)}")
                 return f"Erro ao converter LaTeX para SymPy: {str(e)}"
@@ -54,7 +55,7 @@ def calcular_expressao(expressao, latex=False):
 
         return resultado
     except Exception as e:
-        logging.error(f"Erro ao processar a expressão: {str(e)}")  # Log em caso de erro
+        logging.error(f"Erro ao processar a expressão: {str(e)}")
         return f"Erro ao processar a expressão: {str(e)}"
 
 @app.route('/')
@@ -78,7 +79,7 @@ def calcular():
         resultado = calcular_expressao(expressao, latex=latex)
         return jsonify({'resultado': str(resultado)})
     except Exception as e:
-        logging.error(f"Erro ao processar a expressão: {str(e)}")  # Log em caso de erro
+        logging.error(f"Erro ao processar a expressão: {str(e)}")
         return jsonify({'erro': f'Erro ao processar a expressão: {str(e)}'}), 500
 
 if __name__ == '__main__':
