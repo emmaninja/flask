@@ -31,8 +31,8 @@ def calcular_expressao(expressao, latex=False):
         logging.info(f"Expressão após limpeza: {expressao_limpa}")
         
         if latex:
-            # Decodificar barras invertidas
-            expressao_decodificada = expressao_limpa.encode().decode('unicode_escape')
+            # Decodificar a expressão em bytes
+            expressao_decodificada = bytes(expressao_limpa, "utf-8").decode("unicode_escape")
             logging.info(f"Expressão após decodificação: {expressao_decodificada}")
 
             # Processar LaTeX usando latex2sympy
