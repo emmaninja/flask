@@ -31,13 +31,9 @@ def calcular_expressao(expressao, latex=False):
         logging.info(f"Expressão após limpeza: {expressao_limpa}")
         
         if latex:
-            # Decodificar a expressão em bytes
-            expressao_decodificada = bytes(expressao_limpa, "utf-8").decode("unicode_escape")
-            logging.info(f"Expressão após decodificação: {expressao_decodificada}")
-
-            # Processar LaTeX usando latex2sympy
             try:
-                sympy_expr = latex2sympy.latex2sympy(expressao_decodificada)
+                # Decodificar a expressão como Unicode e tentar novamente
+                sympy_expr = latex2sympy.latex2sympy(expressao_limpa.encode('utf-8').decode('unicode_escape'))
                 logging.info(f"Expressão convertida para SymPy: {sympy_expr}")
             except Exception as e:
                 logging.error(f"Erro ao converter LaTeX para SymPy: {str(e)}")
