@@ -15,7 +15,13 @@ def calcular_expressao_complexa(expressao, latex=False):
             sympy_expr = parse_latex(expressao)
         else:
             sympy_expr = sp.sympify(expressao)  # Converte a expressão para uma forma simbólica
-        
+
+        # Tratamento de limites usando SymPy
+        if isinstance(sympy_expr, sp.Limit):
+            limite = sp.limit(sympy_expr.args[0], sympy_expr.args[1], sympy_expr.args[2])
+            print(f"Resultado do limite: {limite}")
+            return limite
+
         # Tentativa de simplificar a expressão com SymPy
         try:
             simplificado = sp.simplify(sympy_expr)  # Tenta simplificar a expressão
@@ -23,7 +29,7 @@ def calcular_expressao_complexa(expressao, latex=False):
             return simplificado
         except Exception as e_sympy:
             print(f"Erro ao simplificar com SymPy: {e_sympy}")
-        
+
         # Tentar usar SciPy para integrais definidas, etc.
         try:
             # Exemplo: Integrar usando scipy se a expressão for uma integral definida
@@ -38,7 +44,7 @@ def calcular_expressao_complexa(expressao, latex=False):
                 return resultado
         except Exception as e_scipy:
             print(f"Erro ao calcular com SciPy: {e_scipy}")
-        
+
         # Se não for possível simplificar ou avaliar, lançar um erro
         raise ValueError('Expressão não pôde ser avaliada ou simplificada.')
 
