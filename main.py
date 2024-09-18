@@ -3,7 +3,6 @@ import sympy as sp
 import latex2sympy2 as latex2sympy
 import os
 import logging
-import re
 
 app = Flask(__name__)
 
@@ -16,15 +15,15 @@ def limpar_expressao(expressao):
     e tratando barras invertidas.
     """
     # Remover delimitadores LaTeX
+    import re
     expressao = re.sub(r'^\$+|\$+$|^\\\(|\\\)$|^\\\[|\\\]$', '', expressao)
-
     return expressao
 
 def calcular_expressao(expressao, latex=False):
     try:
-        logging.info(f"Expressão original recebida: {expressao}")  # Log da expressão original
-
         if latex:
+            logging.info(f"Expressão original recebida: {expressao}")  # Log da expressão original
+            
             # Limpar a expressão
             expressao_limpa = limpar_expressao(expressao)
             logging.info(f"Expressão após limpeza: {expressao_limpa}")  # Log após a limpeza
@@ -65,6 +64,9 @@ def calcular():
     dados = request.json
     expressao = dados.get('expressao', '')
     latex = dados.get('latex', False)
+
+    # Log da entrada original
+    logging.info(f"Entrada original recebida: {dados}")
 
     if not expressao:
         return jsonify({'erro': 'Nenhuma expressão fornecida'}), 400
