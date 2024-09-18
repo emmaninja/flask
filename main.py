@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 import sympy as sp
 from sympy.parsing.latex import parse_latex
-import numpy as np
 import os
 
 app = Flask(__name__)
@@ -11,12 +10,13 @@ def calcular_expressao(expressao, latex=False):
     try:
         # Se a expressão estiver em LaTeX, converter para uma expressão SymPy
         if latex:
+            # Tentar fazer o parsing da expressão como LaTeX
             sympy_expr = parse_latex(expressao)
         else:
             sympy_expr = sp.sympify(expressao)
         
         # Avaliar o tipo de operação a ser realizada
-        if sympy_expr.has(sp.Limit):
+        if isinstance(sympy_expr, sp.Limit):
             # Calcular o limite se a expressão contiver um objeto de limite
             resultado = sympy_expr.doit()
         else:
