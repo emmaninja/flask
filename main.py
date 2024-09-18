@@ -17,6 +17,8 @@ def limpar_expressao(expressao):
     # Remover delimitadores LaTeX
     import re
     expressao = re.sub(r'^\$+|\$+$|^\\\(|\\\)$|^\\\[|\\\]$', '', expressao)
+    # Remover barras invertidas duplas
+    expressao = expressao.replace('\\\\', '\\')
     return expressao
 
 def calcular_expressao(expressao, latex=False):
@@ -32,7 +34,7 @@ def calcular_expressao(expressao, latex=False):
             expressao_decodificada = bytes(expressao_limpa, "utf-8").decode("unicode_escape")
             logging.info(f"Expressão após decodificação: {expressao_decodificada}")  # Log após a decodificação
 
-            # Use a expressão como uma string "raw" para evitar problemas de barras invertidas
+            # Processar LaTeX usando latex2sympy
             try:
                 sympy_expr = latex2sympy.latex2sympy(expressao_decodificada)
                 logging.info(f"Expressão convertida para SymPy: {sympy_expr}")  # Log antes da avaliação
