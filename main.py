@@ -1,28 +1,24 @@
 from flask import Flask, request, jsonify
-import math
-import os
-import re
+import sympy as sp  # Biblioteca SymPy para cálculos simbólicos
 
 app = Flask(__name__)
 
-# Função para validar expressões matemáticas
-def validar_expressao(expressao):
-    # Permitir apenas números, operadores e funções matemáticas básicas
-    padrao = r'^[0-9+\-*/()., ]+$'
-    if not re.match(padrao, expressao):
-        raise ValueError('Error: not a mathematical expression')
-    return True
-
-# Função para cálculos matemáticos complexos
+# Função para cálculos matemáticos complexos usando SymPy
 def calcular_expressao_complexa(expressao):
     try:
-        validar_expressao(expressao)  # Validação extra da expressão
-        # Ambiente seguro para avaliar a expressão
-        safe_dict = {k: getattr(math, k) for k in dir(math) if not k.startswith("__")}
-        safe_dict.update({'abs': abs, 'round': round})
-        resultado = eval(expressao, {"__builtins__": None}, safe_dict)
-        return resultado
+        # Tentativa de processar a expressão com SymPy
+        try:
+            sympy_result = sp.sympify(expressao).evalf()  # Avaliar a expressão simbólica
+            print(f"Resultado SymPy: {sympy_result}")
+            return sympy_result
+        except Exception as e_sympy:
+            print(f"Erro ao processar com SymPy: {e_sympy}")
+        
+        # Se a expressão não puder ser processada, lançar um erro
+        raise ValueError('Expressão não pôde ser avaliada por SymPy.')
+
     except Exception as e:
+        print(f"Erro geral ao processar a expressão: {e}")
         return str(e)
 
 @app.route('/')
@@ -44,7 +40,7 @@ def calcular():
         
         resultado = calcular_expressao_complexa(expressao)
         print(f"Resultado do cálculo: {resultado}")  # Log do resultado
-        return jsonify({'resultado': resultado})
+        return jsonify({'resultado': str(resultado)})  # Converter resultado para string
     except ValueError as ve:
         print(f"Erro de valor: {ve}")  # Log do erro de valor
         return jsonify({'erro': str(ve)}), 400
@@ -55,4 +51,3 @@ def calcular():
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 8080))  # Use a porta definida no ambiente, ou 8080 como padrão
     app.run(debug=os.getenv("FLASK_DEBUG", "false").lower() == "true", host='0.0.0.0', port=port)
-
