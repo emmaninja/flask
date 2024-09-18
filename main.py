@@ -11,8 +11,9 @@ logging.basicConfig(level=logging.INFO)
 
 def calcular_expressao(expressao, latex=False):
     try:
-        # Log da entrada original
-        logging.info(f"Expressão original recebida: {expressao}")
+        # Substituir barras invertidas duplas por barras invertidas simples
+        expressao = expressao.replace('\\\\', '\\')
+        logging.info(f"Expressão após substituir barras invertidas duplas: {expressao}")
 
         if latex:
             # Remover delimitadores LaTeX se existirem
