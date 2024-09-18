@@ -5,15 +5,15 @@ import os
 
 app = Flask(__name__)
 
-# Função para calcular a expressão
 def calcular_expressao(expressao, latex=False):
     try:
-        # Se a expressão estiver em LaTeX, converter para uma expressão SymPy
         if latex:
-            # Pré-processar a expressão LaTeX para identificar limites
+            # Remover escapes adicionais da expressão
+            expressao = expressao.replace('\\\\', '\\')
+            # Continuar com o processamento LaTeX
             if r'\lim' in expressao:
                 # Extrair a parte da expressão com o limite
-                expressao = expressao.replace(r'\lim', 'limit') # simplificar para a detecção do limite
+                expressao = expressao.replace(r'\lim', 'limit')  # simplificar para a detecção do limite
                 if '_{' in expressao and '}' in expressao:
                     # Extrair o valor de x e a direção (se houver)
                     partes = expressao.split('}')
