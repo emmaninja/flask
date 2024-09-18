@@ -17,9 +17,13 @@ def calcular_expressao(expressao, latex=False):
 
         if latex:
             logging.info(f"Expressão original recebida: {expressao}")  # Log antes do processamento LaTeX
-            # Processar LaTeX usando latex2sympy
-            sympy_expr = latex2sympy.latex2sympy(expressao)
-            logging.info(f"Expressão convertida para SymPy: {sympy_expr}")  # Log antes da avaliação
+            try:
+                # Tentar processar a expressão como LaTeX
+                sympy_expr = latex2sympy.latex2sympy(expressao)
+                logging.info(f"Expressão convertida para SymPy: {sympy_expr}")  # Log antes da avaliação
+            except Exception as e:
+                logging.error(f"Erro ao converter LaTeX para SymPy: {str(e)}")
+                return f"Erro ao converter LaTeX para SymPy: {str(e)}"
         else:
             sympy_expr = sp.sympify(expressao)
 
