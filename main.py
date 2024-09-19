@@ -1,9 +1,9 @@
 from flask import Flask, request, jsonify
 import sympy as sp
 import latex2sympy2 as latex2sympy
-import base64  # Para codificar e decodificar
 import os
 import logging
+import base64
 
 app = Flask(__name__)
 
@@ -12,10 +12,25 @@ logging.basicConfig(level=logging.INFO)
 
 def calcular_expressao(expressao, latex=False):
     try:
+        # Decodificar a expressão de Base64
+        expressao = base64.b64decode(expressao).decode('utf-8')
+        logging.info(f"Expressão decodificada: {expressao}")
+
         if latex:
-            # Decodificar a expressão da base64
-            expressao = base64.b64decode(expressao).decode('utf-8')
-            logging.info(f"Expressão decodificada: {expressao}")
+            # Tentar remover duplicações de barras invertidas e caracteres indesejados
+            expressao = expressao.replace('\\\\', '\\')
+            logging.info(f"Expressão após limpeza inicial: {expressao}")
+
+            # Remover caracteres de início e fim indesejados (como $ ou \(...\))
+            expressao = expressao.strip()
+            if expressao.startswith('$$') and expressao.endswith('$$'):
+                expressao = expressao[2:-2]
+            elif expressao.startswith('$') and expressao.endswith('$'):
+                expressao = expressao[1:-1]
+            elif expressao.startswith('\\(') and expressao.endswith('\\)'):
+                expressao = expressao[2:-2]
+            logging.info(f"Expressão após remover delimitadores LaTeX: {expressao}")
+
             # Processar LaTeX usando latex2sympy
             sympy_expr = latex2sympy.latex2sympy(expressao)
             logging.info(f"Expressão convertida para SymPy: {sympy_expr}")
