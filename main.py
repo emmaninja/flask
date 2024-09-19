@@ -3,44 +3,23 @@ import sympy as sp
 import latex2sympy2 as latex2sympy
 import os
 import logging
-import base64
-import re
 
 app = Flask(__name__)
 
 # Configurar o logger
 logging.basicConfig(level=logging.INFO)
 
-def limpar_expressao(expressao):
-    # Substituir barras invertidas duplas por uma única barra invertida
-    expressao = re.sub(r'\\\\', r'\\', expressao)
-
-    # Remove os delimitadores LaTeX se presentes
-    expressao = expressao.strip()
-    if expressao.startswith('$$') and expressao.endswith('$$'):
-        expressao = expressao[2:-2]
-    elif expressao.startswith('$') and expressao.endswith('$'):
-        expressao = expressao[1:-1]
-    elif expressao.startswith('\\(') and expressao.endswith('\\)'):
-        expressao = expressao[2:-2]
-
-    return expressao
-
 def calcular_expressao(expressao, latex=False):
     try:
-        # Decodificar a expressão de Base64
-        expressao = base64.b64decode(expressao).decode('utf-8')
-        logging.info(f"Expressão decodificada: {expressao}")
+        # Log da expressão recebida
+        logging.info(f"Expressão recebida para processamento: {expressao}")
 
         if latex:
-            # Limpar a expressão
-            expressao = limpar_expressao(expressao)
-            logging.info(f"Expressão após limpeza: {expressao}")
-
             # Processar LaTeX usando latex2sympy
             sympy_expr = latex2sympy.latex2sympy(expressao)
             logging.info(f"Expressão convertida para SymPy: {sympy_expr}")
         else:
+            # Para expressões não LaTeX, usa-se sympify diretamente
             sympy_expr = sp.sympify(expressao)
 
         # Avaliar o tipo de operação a ser realizada
