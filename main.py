@@ -17,11 +17,11 @@ def calcular_expressao(expressao, latex=False):
 
         if latex:
             # Processar LaTeX usando latex2sympy
-            expressao = expressao.replace('\\\\', '\\')
+            expressao = expressao.replace('\\\\\\', '\\')
             sympy_expr = latex2sympy.latex2sympy(expressao)
             logging.info(f"Expressão convertida para SymPy: {sympy_expr}")
         else:
-            expressao = expressao.replace('\\\\', '\\')
+            expressao = expressao.replace('\\\\\\', '\\')
             sympy_expr = sp.sympify(expressao)
 
         # Avaliar o tipo de operação a ser realizada
