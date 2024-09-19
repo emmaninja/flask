@@ -35,13 +35,13 @@ def calcular_expressao(expressao):
 
         logging.info(f"Expressão convertida para SymPy: {sympy_expr}")
 
-        # Se a expressão envolve funções trigonométricas, converter graus para radianos
-        trig_functions = ['cos', 'sin', 'tan']
-        for func in trig_functions:
-            if func in expressao:
-                # Detectar o argumento da função trigonométrica
-                sympy_expr = sympy_expr.replace(sp.Function(func), 
-                                                lambda arg: sp.Function(func)(sp.rad(arg)))
+        # Substituir funções trigonométricas com argumentos em graus para radianos
+        def to_radians(expr):
+            if isinstance(expr, sp.Function) and expr.func in [sp.sin, sp.cos, sp.tan]:
+                return expr.func(expr.args[0] * sp.pi / 180)
+            return expr
+
+        sympy_expr = sympy_expr.replace(to_radians)
 
         # Avaliar a expressão
         resultado = sympy_expr.evalf() if sympy_expr.is_Number else sp.simplify(sympy_expr)
