@@ -17,18 +17,16 @@ def calcular_expressao(expressao, latex=False):
         logging.info(f"Expressão decodificada: {expressao}")
 
         if latex:
-            # Tentar remover duplicações de barras invertidas e caracteres indesejados
+            # Remover duplicações de barras invertidas e caracteres indesejados
             expressao = expressao.replace('\\\\', '\\')
-            logging.info(f"Expressão após limpeza inicial: {expressao}")
+            logging.info(f"Expressão após substituir barras invertidas duplas: {expressao}")
 
-            # Remover caracteres de início e fim indesejados (como $ ou \(...\))
+            # Remover delimitadores LaTeX
             expressao = expressao.strip()
-            if expressao.startswith('$$') and expressao.endswith('$$'):
+            if expressao.startswith('\\(') and expressao.endswith('\\)'):
                 expressao = expressao[2:-2]
             elif expressao.startswith('$') and expressao.endswith('$'):
                 expressao = expressao[1:-1]
-            elif expressao.startswith('\\(') and expressao.endswith('\\)'):
-                expressao = expressao[2:-2]
             logging.info(f"Expressão após remover delimitadores LaTeX: {expressao}")
 
             # Processar LaTeX usando latex2sympy
