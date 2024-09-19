@@ -16,11 +16,11 @@ def calcular_expressao(expressao, latex=False):
         expressao = base64.b64decode(expressao).decode('utf-8')
         logging.info(f"Expressão decodificada: {expressao}")
 
-        if latex:
-            # Remover duplicações de barras invertidas e caracteres indesejados
-            expressao = expressao.replace('\\\\', '\\')
-            logging.info(f"Expressão após substituir barras invertidas duplas: {expressao}")
+        # Remover duplicações de barras invertidas
+        expressao = expressao.replace('\\\\', '\\')
+        logging.info(f"Expressão após substituir barras invertidas duplas: {expressao}")
 
+        if latex:
             # Remover delimitadores LaTeX
             expressao = expressao.strip()
             if expressao.startswith('\\(') and expressao.endswith('\\)'):
