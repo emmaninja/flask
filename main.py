@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
 import sympy as sp
+from sympy.parsing.sympy_parser import parse_expr
 import latex2sympy2 as latex2sympy
 import os
 import logging
 import base64
+import math
 
 app = Flask(__name__)
 
@@ -13,7 +15,7 @@ logging.basicConfig(level=logging.INFO)
 def calcular_expressao(expressao):
     try:
         # Log da expressão recebida
-        logging.info(f"Expressão LaTeX recebida: {expressao}")
+        logging.info(f"Expressão recebida: {expressao}")
         
         # Remover caracteres de início e fim indesejados (como $ ou \(...\))
         expressao = expressao.strip()
@@ -23,13 +25,23 @@ def calcular_expressao(expressao):
             expressao = expressao[1:-1]
         elif expressao.startswith('\\(') and expressao.endswith('\\)'):
             expressao = expressao[2:-2]
-        logging.info(f"Expressão após remover delimitadores LaTeX: {expressao}")
+        logging.info(f"Expressão após remover delimitadores: {expressao}")
 
-        # Processar LaTeX usando latex2sympy
-        sympy_expr = latex2sympy.latex2sympy(expressao)
+        # Tentar processar como expressão SymPy normal
+        try:
+            sympy_expr = parse_expr(expressao, transformations='all')
+        except:
+            # Se falhar, tentar processar como LaTeX
+            sympy_expr = latex2sympy.latex2sympy(expressao)
+
         logging.info(f"Expressão convertida para SymPy: {sympy_expr}")
 
-        # Avaliar o tipo de operação a ser realizada
+        # Se a expressão envolve funções trigonométricas, converter graus para radianos
+        if 'cos' in expressao or 'sin' in expressao or 'tan' in expressao:
+            # Converter ângulos em graus para radianos
+            sympy_expr = sympy_expr.subs({sp.Symbol('90'): sp.pi/2, sp.Symbol('180'): sp.pi, sp.Symbol('360'): 2*sp.pi})
+
+        # Avaliar a expressão
         resultado = sympy_expr.evalf() if sympy_expr.is_Number else sp.simplify(sympy_expr)
         logging.info(f"Resultado da expressão: {resultado}")
 
