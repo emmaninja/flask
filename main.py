@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 import sympy as sp
-from sympy.parsing.latex import parse_latex
+import latex2sympy2 as latex2sympy
 import os
 import logging
 
@@ -11,12 +11,15 @@ logging.basicConfig(level=logging.INFO)
 
 def calcular_expressao(expressao, latex=False):
     try:
-        # Substituir barras invertidas duplas por barras invertidas simples
-        expressao = expressao.replace('\\\\', '\\')
-        logging.info(f"Expressão após substituir barras invertidas duplas: {expressao}")
+        # Log da entrada original
+        logging.info(f"Expressão original recebida: {expressao}")
 
         if latex:
-            # Remover delimitadores LaTeX se existirem
+            # Substituir barras invertidas duplas por simples
+            expressao = expressao.replace('\\\\', '\\')
+            logging.info(f"Expressão após substituição inicial de barras invertidas: {expressao}")
+
+            # Remover caracteres de início e fim indesejados (como $ ou \(...\))
             expressao = expressao.strip()
             if expressao.startswith('$$') and expressao.endswith('$$'):
                 expressao = expressao[2:-2]
@@ -24,15 +27,19 @@ def calcular_expressao(expressao, latex=False):
                 expressao = expressao[1:-1]
             elif expressao.startswith('\\(') and expressao.endswith('\\)'):
                 expressao = expressao[2:-2]
+            
+            # Verificar novamente por barras invertidas duplas
+            expressao = expressao.replace('\\\\', '\\')
+            logging.info(f"Expressão após remoção de delimitadores e limpeza: {expressao}")
 
-            # Log após limpeza
-            logging.info(f"Expressão após limpeza: {expressao}")
-
-            # Usar parse_latex do sympy para interpretar a expressão
-            sympy_expr = parse_latex(expressao)
+            # Processar LaTeX usando latex2sympy
+            sympy_expr = latex2sympy.latex2sympy(expressao)
             logging.info(f"Expressão convertida para SymPy: {sympy_expr}")
         else:
+            # Verificar por barras invertidas duplas para expressões não-LaTeX
+            expressao = expressao.replace('\\\\', '\\')
             sympy_expr = sp.sympify(expressao)
+            logging.info(f"Expressão após verificação de barras invertidas (não-LaTeX): {sympy_expr}")
 
         # Avaliar o tipo de operação a ser realizada
         if isinstance(sympy_expr, sp.Basic):
