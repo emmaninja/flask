@@ -3,7 +3,6 @@ import sympy as sp
 import latex2sympy2 as latex2sympy
 import os
 import logging
-import base64
 
 app = Flask(__name__)
 
@@ -12,23 +11,13 @@ logging.basicConfig(level=logging.INFO)
 
 def calcular_expressao(expressao, latex=False):
     try:
-        # Decodificar a expressão de Base64
-        expressao = base64.b64decode(expressao).decode('utf-8')
-        logging.info(f"Expressão decodificada: {expressao}")
-
+        logging.info(f"Expressão original recebida: {expressao}")
+        
         if latex:
-            # Remover duplicações de barras invertidas
-            expressao = expressao.replace('\\', '')
+            # Remover barras invertidas duplas
+            expressao = expressao.replace('\\\\', '\\')
             logging.info(f"Expressão após substituir barras invertidas duplas: {expressao}")
-
-            # Remover delimitadores LaTeX
-            expressao = expressao.strip()
-            if expressao.startswith('\\(') and expressao.endswith('\\)'):
-                expressao = expressao[2:-2]
-            elif expressao.startswith('$') and expressao.endswith('$'):
-                expressao = expressao[1:-1]
-            logging.info(f"Expressão após remover delimitadores LaTeX: {expressao}")
-
+            
             # Processar LaTeX usando latex2sympy
             sympy_expr = latex2sympy.latex2sympy(expressao)
             logging.info(f"Expressão convertida para SymPy: {sympy_expr}")
