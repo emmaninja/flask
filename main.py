@@ -5,7 +5,6 @@ import latex2sympy2 as latex2sympy
 import os
 import logging
 import base64
-import math
 
 app = Flask(__name__)
 
@@ -37,9 +36,12 @@ def calcular_expressao(expressao):
         logging.info(f"Expressão convertida para SymPy: {sympy_expr}")
 
         # Se a expressão envolve funções trigonométricas, converter graus para radianos
-        if 'cos' in expressao or 'sin' in expressao or 'tan' in expressao:
-            # Converter ângulos em graus para radianos
-            sympy_expr = sympy_expr.subs({sp.Symbol('90'): sp.pi/2, sp.Symbol('180'): sp.pi, sp.Symbol('360'): 2*sp.pi})
+        trig_functions = ['cos', 'sin', 'tan']
+        for func in trig_functions:
+            if func in expressao:
+                # Detectar o argumento da função trigonométrica
+                sympy_expr = sympy_expr.replace(sp.Function(func), 
+                                                lambda arg: sp.Function(func)(sp.rad(arg)))
 
         # Avaliar a expressão
         resultado = sympy_expr.evalf() if sympy_expr.is_Number else sp.simplify(sympy_expr)
