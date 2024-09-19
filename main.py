@@ -11,15 +11,15 @@ logging.basicConfig(level=logging.INFO)
 
 def calcular_expressao(expressao, latex=False):
     try:
-        # Log da expressão recebida
-        logging.info(f"Expressão recebida para processamento: {expressao}")
+        # Remover duplicações de barras invertidas antes do processamento
+        expressao = expressao.replace('\\\\', '\\')
+        logging.info(f"Expressão após substituir barras invertidas duplas: {expressao}")
 
         if latex:
             # Processar LaTeX usando latex2sympy
             sympy_expr = latex2sympy.latex2sympy(expressao)
             logging.info(f"Expressão convertida para SymPy: {sympy_expr}")
         else:
-            # Para expressões não LaTeX, usa-se sympify diretamente
             sympy_expr = sp.sympify(expressao)
 
         # Avaliar o tipo de operação a ser realizada
