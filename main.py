@@ -1,20 +1,15 @@
-from flask import Flask, request, jsonify, session, redirect, url_for
+from flask import Flask, request, jsonify
 import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr
 import latex2sympy2 as latex2sympy
 import os
 import logging
 import base64
-from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)  # Chave secreta para a sessão
 
 # Configurar o logger
 logging.basicConfig(level=logging.INFO)
-
-# Simulação de banco de dados em memória (você pode substituir por um banco de dados real)
-users_db = {}
 
 def calcular_expressao(expressao):
     try:
@@ -71,45 +66,6 @@ def calcular():
     except Exception as e:
         logging.error(f"Erro ao processar a expressão: {str(e)}")
         return jsonify({'erro': f'Erro ao processar a expressão: {str(e)}'}), 500
-
-# Rota para registro
-@app.route('/register', methods=['POST'])
-def register():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
-
-    if not username or not password:
-        return jsonify({"error": "Nome de usuário e senha são obrigatórios"}), 400
-
-    if username in users_db:
-        return jsonify({"error": "Usuário já existe"}), 400
-
-    # Hash da senha para armazená-la de forma segura
-    hashed_password = generate_password_hash(password)
-    users_db[username] = hashed_password
-
-    return jsonify({"message": "Usuário registrado com sucesso"}), 200
-
-# Rota para login
-@app.route('/login', methods=['POST'])
-def login():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
-
-    # Verifica se o usuário existe e se a senha está correta
-    if username in users_db and check_password_hash(users_db[username], password):
-        session['username'] = username  # Salva o usuário na sessão
-        return jsonify({"message": "Login bem-sucedido"}), 200
-
-    return jsonify({"error": "Nome de usuário ou senha incorretos"}), 401
-
-# Rota para logout
-@app.route('/logout', methods=['GET'])
-def logout():
-    session.pop('username', None)
-    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 8080))
