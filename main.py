@@ -15,7 +15,7 @@ def calcular_expressao(expressao, latex=False):
         logging.info(f"Expressão original recebida: {expressao}")
 
         if latex:
-            # Substituir barras invertidas duplas por simples
+            # Tentar remover duplicações de barras invertidas e caracteres indesejados
             expressao = expressao.replace('\\\\', '\\')
             logging.info(f"Expressão após substituição inicial de barras invertidas: {expressao}")
 
@@ -27,10 +27,10 @@ def calcular_expressao(expressao, latex=False):
                 expressao = expressao[1:-1]
             elif expressao.startswith('\\(') and expressao.endswith('\\)'):
                 expressao = expressao[2:-2]
-            
-            # Verificar novamente por barras invertidas duplas
+
+            # Verificar e substituir novamente barras invertidas duplas por simples antes de processamento
             expressao = expressao.replace('\\\\', '\\')
-            logging.info(f"Expressão após remoção de delimitadores e limpeza: {expressao}")
+            logging.info(f"Expressão antes do processamento LaTeX: {expressao}")
 
             # Processar LaTeX usando latex2sympy
             sympy_expr = latex2sympy.latex2sympy(expressao)
