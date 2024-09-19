@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 def calcular_expressao(expressao, latex=False):
     try:
         # Remover duplicações de barras invertidas antes do processamento
-        expressao = expressao.replace('\\\\', '\\')
+        expressao = expressao.replace('\\\\\\', '\\')
         logging.info(f"Expressão após substituir barras invertidas duplas: {expressao}")
 
         if latex:
